@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no">
+<link rel="stylesheet" type="text/css" href="css/fonts.css" />
+<link rel="stylesheet" type="text/css" href="css/jquery-ui-1.10.3.custom.min.css" />
+<style>
+
+html {
+  font-size:100%;
+}
+
+body {
+  font-size:1rem;
+  margin:0px;
+  padding:0px;
+  font-family:'Guardian Egyptian Web', 'Egyptian Display', Georgia, serif; 
+}
+
+
+.chartTitle {
+      margin: 0 auto;
+      margin-bottom: 15px;
+      font-size: 21px;
+      font-family: 'Guardian Egyptian Web', EgyptianHeadline, Georgia, serif;
+      font-weight: 900;
+      text-align: left;
+      color: #005689;
+      }
+
+      .topbar {
+      width: 70px;
+      height: 4px;
+      background-color: #4bc6df;
+      margin-bottom: 10px;
+      }
+
+.notes {
+  color:#767676;
+  font-size:1.125rem;
+  line-height: 1.375rem;
+  font-weight: 300;
+  border-top:0.0625rem dotted #dfdfdf
+}
+
+.itemHeader {
+  font-size:1.2rem;
+  margin-top:5px;
+  margin-bottom:5px; 
+  font-weight: bold;
+}
+
+.nodeCircle {
+  cursor: pointer;
+  stroke: lightgrey;
+  stroke-width: 1.5px;
+}
+
+.metaInfoPanel {
+  color:#767676;
+}
+
+.nodeImage {
+  pointer-events:none;
+}
+
+.link {
+  fill: none;
+  stroke: #005689;
+  stroke-width: 1.5px;
+}
+
+.red {
+
+  font-weight:bold;
+  color:red; 
+}
+
+.infoLink {
+  color:#005689;
+  font-weight:bold;
+}
+
+#slider {
+  width:80%;
+  display: inline-block;
+  margin-left:10px;
+}
+
+#outer-wrapper {
+        max-width: 940px;
+        margin-bottom:20px;
+        padding-left:5px;
+        padding-right:5px;  
+        margin-left: auto;
+        margin-right: auto; 
+      }
+
+.row:after {
+         content: " "; /* Older browser do not support empty content */
+         visibility: hidden;
+         display: block;
+         height: 0;
+         clear: both;
+}
+
+.col50 {
+  float:left;
+  width:49%;
+  margin-right:1%; 
+}
+
+.col70 {
+
+  float:right;
+  width:59%;
+  margin-right:1%; 
+}
+
+.col10 {
+  float:left;
+  width:18%;
+  margin-right:2%; 
+}
+.col90 {
+  float:left;
+  width:79%;
+  margin-right:1%; 
+}
+
+.row {
+ margin-bottom:15px; 
+}
+
+.categoryIcon {
+  border-radius: 50%;
+  background-color: #951c55;
+  display: inline-block;
+  width: 50px;
+  height: 50px;
+  background-size: 80%;
+  background-repeat: no-repeat;
+  background-position: center;
+  box-shadow: 0 0 2px lightgrey;
+
+}
+
+#incomeText {
+  color:#7d0068;
+  font-size:3.4em;
+}
+
+#taxText {
+  color:#4e0375;
+  font-size:3.4em;
+}
+
+.textWrapper, .resultsItem {
+  position: relative;
+  cursor: pointer;
+}
+
+.textInside {
+  margin-left:5px;
+}
+
+.nav-button {
+  position: absolute;
+  top: 5px;
+  cursor:pointer;
+  width: 44px;
+  height: 44px;
+  cursor: pointer;
+  border-radius: 50%;
+  border: 1px solid #000;
+  opacity:0.7;
+  filter:alpha(opacity=70); /* For IE8 and earlier */
+  right:2%;
+  margin-left: -29px;
+  bottom: 20px;
+  background-image: url("img/down.png")
+}
+
+.textPanel {
+  display: none;
+  margin-top:20px; 
+}
+  .btn {
+  display: inline-block;
+  border-radius: 16px;
+  text-align: center;
+  padding: 5px 10px;
+  margin-right:5px; 
+  line-height:1em; 
+  font-family: "Guardian Agate Sans", Arial, sans-serif;
+  overflow:hidden;
+  color: #FFFFFF;
+  background-color: #bdbdbd;
+  cursor:pointer;
+  text-decoration:none;
+  }
+
+  #resetButton, #tweetButton {
+    display:none;
+  }
+
+  .bar {
+  position:absolute;
+  background-color:#EAA1C4;
+  height:48px;
+  z-index:-1;  
+  top: 1px;
+  width: 0px;
+  transition(width 4.0s ease-in-out);
+  }
+
+  .btn:hover {
+
+     background-color: #8E8E8E;
+  }
+
+@media (max-width: 600px) {
+      html {
+        font-size:90%;
+      }
+      .col50, .col30, .col70 {
+        width:100%;
+        margin:0;
+      }
+
+      .col90 {
+        width:69%;
+      }
+
+      #slider {
+        width:60%;
+      }
+}
+
+@media (max-width: 400px) {
+      html {
+        font-size:75%;
+      }
+
+      .col90 {
+        width:65%;
+      }
+
+      .nav-button {
+        right:0.5%;
+      }
+
+      
+}
+
+
+</style>
+<body>
+
+<div id="outer-wrapper">
+      <div class="row">
+        <div class="topbar"></div>
+        <div class="chartTitle">How are your tax dollars spent?</div>
+      </div>  
+      <div id="graphicHolder" class="row">
+      </div> 
+      <div class="notes">
+        <p>*This tax calculation does not take into account the Medicare rebate or temporary budget repair levy, but it does apply the low income tax offset. Tax dollars are allocated based on the proportion of government spending by function outlined in budget paper 1, statement 6. Icons from the Noun Project: Proletkult Graphik, Luke Anthony Firth, Lemon Liu, Ben King, John Chapman, Milton Raposo C. Rêgo Jr., Ahmed Hamzawy, Chetankumar Pujari, Luke Anthony Firth and Iconathon.</p> 
+      </div> 
+</div>
+<script type="text/javascript" src="js/jquery-1.11.1.min.js"></script>
+<script type="text/javascript" src="js/jquery-ui-1.10.3.custom.min.js"></script>
+<script type="text/javascript" src="js/jquery.ui.touch-punch.min.js"></script>
+<script src='js/ractive.min.js'></script>
+<script src="js/d3.min.js"></script>
+<script src="http://interactive.guim.co.uk/libs/iframe-messenger/iframeMessenger.js" type="text/javascript"></script>
+
+<script id='template' type='text/ractive'>
+    <div class='row'>
+      <div class='col50'>
+        <p>Your taxable income*</p>
+        <div id='incomeText'>{{income}}</div>
+      </div>
+      <div class='col50'>
+        <p>Your tax</p>
+        <div id='taxText'>{{tax}}</div>
+      </div>
+    </div>
+    <div class='row' style="margin-bottom:20px;">
+      <span style="padding-bottom:15px;">Adjust amount:</span> <div id='slider'></div>
+    </div>
+    <div class='row'>
+    {{#each results}}
+    <div class='resultsItem row' id='{{id}}' on-click='dropdown'>
+      <div class='categoryIcon col10' style="background-image:url('{{img}}');'"></div>
+        <div class='textWrapper col90'>
+          <div class='textInside'>
+            <div class='itemHeader'>{{item}}</div>
+            <div>${{amount}}</div>
+            <div class='textPanel'>{{{text}}}</div>
+          </div>
+          <div class='bar' style='width:{{barWidth * 100}}%;'></div>
+          
+        </div>
+        <div class='nav-button'></div>  
+    </div>  
+    {{/each}}
+    </div>
+
+</script>
+
+<script>
+
+iframeMessenger.enableAutoResize(); 
+
+var formatNumber = d3.format(",f");
+var formatNumber2 = d3.format(",f");
+var incomeAmounts = [18000,19000,20000,21000,22000,23000,24000,25000,26000,27000,28000,29000,30000,31000,32000,33000,34000,35000,36000,37000,38000,39000,40000,41000,42000,43000,44000,45000,46000,47000,48000,49000,50000,51000,52000,53000,54000,55000,56000,57000,58000,59000,60000,61000,62000,63000,64000,65000,66000,67000,68000,69000,70000,71000,72000,73000,74000,75000,76000,77000,78000,79000,80000,81000,82000,83000,84000,85000,86000,87000,88000,89000,90000,91000,92000,93000,94000,95000,96000,97000,98000,99000,100000,101000,102000,103000,104000,105000,106000,107000,108000,109000,110000,111000,112000,113000,114000,115000,116000,117000,118000,119000,120000,121000,122000,123000,124000,125000,126000,127000,128000,129000,130000,131000,132000,133000,134000,135000,136000,137000,138000,139000,140000,141000,142000,143000,144000,145000,146000,147000,148000,149000,150000,151000,152000,153000,154000,155000,156000,157000,158000,159000,160000,161000,162000,163000,164000,165000,166000,167000,168000,169000,170000,171000,172000,173000,174000,175000,176000,177000,178000,179000,180000,181000,182000,183000,184000,185000,186000,187000,188000,189000,190000,191000,192000,193000,194000,195000,196000,197000,198000,199000,200000];
+
+var results = [{"item":"General public services","id":"publicservices","total":22162000000,"img":"img/other.png","text":"Total expenditure: <b>$22.2bn</b><p>This category covers expenses to support the organisation and operation of government, including functions such as the collection of taxes and the conduction of elections. Total expenses for this category are estimated to decrease by 14% in real terms from 2014-15 to 2015-16.</p>"},
+{"item":"Defence","id":"defence","total":26348000000,"img":"img/defence.png","text":"Total expenditure: <b>$26.3bn</b><p>Defence spending is estimated to increase by 4.5% from 2014-15 to 2015-16. $750m has been provided to expand Australia’s military operation abroad, including for 300 personnel in Iraq.</p>"},
+{"item":"Public order & safety","id":"publicorder","total":4885000000,"img":"img/publicorder.png","text":"Total expenditure: <b>$4.9bn</b><p>This category includes expenses to support the administration of the federal legal system and provision of legal services to the community. It also includes law enforcement, border protection and intelligence activities. Total expenses are estimated to increase by 4.1% from 2014-15 to 2015-16. This increase is partly due to changing responsibilities for border protection and the introduction of mandatory metadata retention, which will cost $131m.</p>"},
+{"item":"Education","id":"education","total":31854000000,"img":"img/education.png","text":"Total expenditure: <b>$31.8bn</b><p>Education spending is estimated to decrease by 0.3% in real terms from 2014-15 to 2015-16. In a key budget policy, $843m will be channeled into preschool programs to provide all children access to education for up to 15 hours a week before they start school. $300m will also be spent on keeping technical and research staff at the National Collaborative Research and Infrastructure Strategy for two more years after it had been left without ongoing funding.</p>"},
+{"item":"Health","id":"health","total":69381000000,"img":"img/health.png","text":"Total expenditure: <b>$69.4bn</b><p>Health spending is estimated to increase by 1.1% from 2014-15 to 2015-16. The biggest chunk of spending in health remains the funding of Medicare, with the government adding $485m to update electronic health systems. The Pharmaceutical Benefits Scheme will receive another $1.3bn over four years.</p>"},
+{"item":"Social security & welfare","id":"socialsecurity","total":154000000000,"img":"img/social.png","text":"Total expenditure: <b>$154bn</b><p>The largest area of government expenditure, this category includes assistance to the aged, unemployed people with disabilities, and other forms of income support. In one of the flagship programs of the budget, the government will spend $3.5bn over five years on childcare assistance to encourage parents to return to work.</p>"},
+{"item":"Housing & community amenities","id":"housing","total":5329000000,"img":"img/housing.png","text":"Total expenditure: <b>$5.3bn</b><p>This category covers the government’s contributions to affordable housing schemes and other housing programs. Total expenses are estimated to increase by 5.4% from 2014-15 to 2015-16.</p>"},
+{"item":"Recreation & culture","id":"recreation","total":3530000000,"img":"img/recreation.png","text":"Total expenditure: <b>$3.5bn</b><p>The recreation and culture category includes funding for public broadcasters, the arts, sports, and national parks. Spending is projected to decrease by 2.1% from 2014-15 to 2015-16 due to funding cuts to the ABC and SBS.</p>"},
+{"item":"Fuel & energy","id":"fuelenergy","total":6706000000,"img":"img/energy.png","text":"Total expenditure: <b>$6.7bn</b><p>Fuel and energy spending is set to decrease by 6.2% from 2014-15 to 2015-16. This in part reflects reduced funding for the carbon capture and storage program, and the closure of programs involving ethanol production and low emissions technology. It is also partly due to the closure of the Australian Renewable Energy Agency.</p>"},
+{"item":"Agriculture, forestry & fishing","id":"agriculture","total":3063000000,"img":"img/agriculture.png","text":"Total expenditure: <b>$3.5bn</b><p>Spending in this category is projected to increase 9.5% year-on-year, but decrease by 26.9% over the forward estimates period. The large decrease is mostly due to the termination of funding for the Murray-Darling Basin Authority’s planning functions.</p>"},
+{"item":"Mining, manufacturing & construction","id":"mining","total":3142000000,"img":"img/mining.png","text":"Total expenditure: <b>$3.1bn</b><p>Expenses in this category are projected to decreased by 4.6% year-on-year, with continued decreases over the forward estimates period. This is mostly due to the government scrapping various industry programs.</p>"},
+{"item":"Transport & communication","id":"transport","total":8575000000,"img":"img/communication.png","text":"Total expenditure: <b>$8.6bn</b><p>This category has one of the largest increases from 2014-15 to 2015-16, with spending jumping by 28.7%. This reflects increased spending on transport infrastructure such as the Victorian regional rail link and grants for road projects.</p>"},
+{"item":"Other economic affairs","id":"economic","total":9792000000,"img":"img/economic.png","text":"Total expenditure: <b>$9.9bn</b><p>This category includes spending on tourism, labour market assistance, immigration and other economic affairs. Total expenses are projected to decrease by 10.5% from 2014-15 to 2015-16.</p>"},
+{"item":"Other purposes","id":"otherpurposes","total":85701000000,"img":"img/other.png","text":"Total expenditure: <b>$85.7bn</b><p>The second largest category, it includes expenses from paying interest on public debt, and assistance to state and territory governments. Expenses are projected to increase by 4.5% from 2014-15 to 2015-16, primarily due to GST payments to the states and territories.</p>"}
+]
+
+var exTotal = d3.nest().rollup(function(d) {
+  return d3.sum(d, function(g) { 
+    return g.total;
+  });
+  }).entries(results); 
+
+var max = d3.nest().rollup(function(d) {
+  return d3.max(d, function(g) { 
+    return g.total;
+  });
+  }).entries(results); 
+
+console.log(exTotal);
+
+function compare(a,b) {
+        if (+a.total < +b.total)
+            return 1;
+        if (+a.total > +b.total)
+            return -1;
+        return 0;
+    }
+
+results.sort(compare);    
+
+results.forEach(function(d) {
+  d['proportion'] = d['total']/exTotal;
+  d['barWidth'] = d['total']/max;
+  d['amount'] = formatNumber(getTax(58000)*d['proportion']);
+});
+
+console.log(results);
+
+var isMobile;
+var windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+
+if (windowWidth < 900){
+        isMobile = true;
+    }
+
+    if (windowWidth > 900){
+        isMobile = false;
+    }
+
+var ractive = new Ractive({
+      el: '#graphicHolder',
+      template: '#template',
+      data: {
+        incomeAmounts:incomeAmounts,
+        income:'$58,000',
+        tax:'$10,267',
+        results:results
+        }
+});
+
+ractive.on('updateResults', function (event) {
+  console.log(event);
+  updateResults(event['context']['income']);
+
+});
+
+ractive.on( 'dropdown', function ( event ) {
+  console.log(event);
+  
+  var current = event['context']['id'];
+
+  if ($('#' + current + ' .textPanel').is(":hidden")) {
+      $('#' + current + ' .textPanel').slideDown();
+      $('#' + current + ' .nav-button').css("background-image", "url(img/up.png)"); 
+  }
+
+  else {
+      $('#' + current + ' .textPanel').slideUp();
+      $('#' + current + ' .nav-button').css("background-image", "url(img/down.png)"); 
+  }
+
+
+});
+
+function updateResults(income) {
+
+  //Clear results
+  var tax = getTax(income);
+
+  results.forEach(function(d) {
+    d['amount'] = formatNumber(tax*d['proportion']);
+  });
+
+  ractive.set('results', results);
+  ractive.set('income', "$" + formatNumber2(income));
+  ractive.set('tax', "$" + formatNumber2(tax));
+}
+
+function getTax(income) {
+
+  var tax;
+  if (income < 18201) {
+    tax = 0;
+  }
+  else if (income > 18200 && income < 37001 ) {
+    tax = (income - 18200)*(0.19) - 445;
+    if (tax < 0) { tax = 0;}  
+    $("#tax").html(' $' + tax);
+  }
+  else if (income > 37000 && income < 80001) {
+
+    if (income < 66667) {
+      lito =  445 - (((income - 37000)/100)*1.5)
+      tax = (income - 37000)*(0.325) + 3572 - lito;
+    }
+
+    else { tax = (income - 37000)*(0.325) + 3572; 
+    }
+  }
+
+  else if (income > 80000 && income < 180001) {
+    tax = (income - 80000)*(0.37) + 17547;   
+  }
+
+  else if (income > 180000) {
+    tax = (income - 180000)*(0.45) + 54547; 
+  }
+
+  return tax;
+
+}
+
+$("#slider").slider({
+  value: 58000,
+  min: 18000,
+  max: 200000,
+  step: 500,
+  animate:true,
+  slide: function( event, ui ) {
+
+    sliderValue = ui.value;
+    updateResults(ui.value);
+    
+
+  }
+}); 
+
+
+      // if (status2 == false) {
+
+      //   $('.elecText_' + elec).slideUp();
+      //   $('.elecHeader_' + elec).css("background-image", "url(img/down.png)");  
+
+
+      // }
+
+      // else if (status2 == true) {
+
+      //   $('.elecText_' + elec).slideDown();
+      //   $('.elecHeader_' + elec).css("background-image", "url(img/up.png)"); 
+      // }
+
+
+
+</script>
+</body>
+</html>
